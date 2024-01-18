@@ -33,9 +33,11 @@ void MotorControl::PlayNote(char note, int octave){
         octave = -1 * octave;
         down_octave = true;
     }
-    freq = (octave) ? ((down_octave) ? freq / (2.0 * (float)octave) : freq * (2 * octave)) : freq;
-    float rpm = freq * 60;
-    rpm = map(rpm, 0, 50000, 1000, 2000);
+    freq = (octave) ? ((down_octave) ? freq / ((float)num_of_plates * (float)octave) : freq * (num_of_plates * octave)) : freq;
+    rpm = freq * 60;
+    int output = map(rpm, 0, 50000, 1000, 2000);
+    frequency = freq;
+    rpm = output;
     ESC.writeMicroseconds(rpm);
 }
 

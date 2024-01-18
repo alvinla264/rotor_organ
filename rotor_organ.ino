@@ -3,21 +3,25 @@
 #include "lcd_screen.h"
 #define ESC_PIN 9
 #define POT A0
-Servo ESC;
-//LCDScreen lcd;
+
+MotorControl motor(ESC_PIN);
+
 void setup(){
-    ESC.attach(ESC_PIN, 1000, 2000);
-    Serial.begin(9600);
+    Serial.begin(115200);
 }
 
-void loop(){
-    int potValue = analogRead(POT);
-    potValue =  map(potValue, 0, 1023, 1000, 2000);
-    Serial.println(potValue);
-    ESC.writeMicroseconds(potValue);
-    //int freq = map(potValue, 1000, 2000, 0, 50000);
-    //char second_line[17];
-    //sprintf(second_line, "%d", freq);
-    //lcd.PrintBothLine("Frequency", second_line);
-    delay(150);
-}
+
+
+//Servo ESC;
+// void setup(){
+//     ESC.attach(ESC_PIN, 1000, 2000);
+//     Serial.begin(9600);
+// }
+
+// void loop(){
+//     int potValue = analogRead(POT);
+//     potValue =  map(potValue, 0, 1023, 1000, 2000);
+//     Serial.println(potValue);
+//     ESC.writeMicroseconds(potValue);
+//     delay(150);
+// }

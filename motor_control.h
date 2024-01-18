@@ -4,10 +4,13 @@
 #include <Servo.h>
 //float fundamental_freq[] = {261.63, 277.18, 293.66, 311.13, 329.63, 349.23, 369.99, 392, 415.3, 440, 466,16, 493.88}; //C C# D D# E F F# G G# A A# B
 //max freq is G# 2 octaves up 1661.2(6 octave)
+#define num_of_plates 8
 class MotorControl{
     private:
         int ESC_pin;
         Servo ESC;
+        int rpm;
+        int frequency;
     public:
         MotorControl(int pin);
         void PlayNote(char note, int octave = 4);
