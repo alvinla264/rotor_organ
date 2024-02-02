@@ -1,6 +1,5 @@
 #include <Servo.h>
 #include "motor_control.h"
-#include "lcd_screen.h"
 #define ESC_PIN 9
 #define POT A0
 

@@ -1,41 +1,37 @@
 #include "motor_control.h"
-float getFreq(char note) {
-  switch (note) {
-    case 'A':
-      return 440.00;
-    case 'B':
-      return 493.88;
-    case 'C':
-      return 261.63;
-    case 'D':
-      return 293.66;
-    case 'E':
-      return 329.63;
-    case 'F':
-      return 349.23;
-    case 'G':
-      return 392.00;
-    default:
-      return 0;  // Return 0 for unknown notes
-    }
-}
 
+Note strToEnum(String note){
+  if(note == "C") return C;
+  else if(note == "C#") return C_S;
+  else if(note == "D") return D;
+  else if(note == "D#") return D_S;
+  else if(note == "E") return E;
+  else if(note == "F") return F;
+  else if(note == "F#") return F_S;
+  else if(note == "G") return G;
+  else if(note == "G#") return G_S;
+  else if(note == "A") return A;
+  else if(note == "A#") return A_S;
+  else if(note == "B") return B;
+  else return C;
+}
 MotorControl::MotorControl(int pin) : ESC_pin(pin){
     ESC.attach(pin);
     ESC.writeMicroseconds(1000);
 }
 
-void MotorControl::PlayNote(char note, int octave){
+void MotorControl::PlayNote(String note, int octave){
     bool down_octave = false;
-    float freq = getFreq(note);
+    float freq = fundamental_freq[strToEnum(note)];
     octave = octave - 4;//center it at 0
     if(octave < 0){
         octave = -1 * octave;
         down_octave = true;
     }
+    //changes the frequency to the proper octave
     freq = (octave) ? ((down_octave) ? freq / ((float)num_of_plates * (float)octave) : freq * (num_of_plates * octave)) : freq;
-    rpm = freq * 60;
-    int output = map(rpm, 0, 50000, 1000, 2000);
+    rpm = freq * 60; //converts freq(RPS) to RPM assuming freq and RPS are 1 to 1
+    int output = map(rpm, 0, MAX_RPM, 1000, 2000);
     frequency = freq;
     rpm = output;
     ESC.writeMicroseconds(rpm);
