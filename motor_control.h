@@ -35,5 +35,5 @@ class MotorControl{
 //fourth octave
 Note strToEnum(String note);
 float getFrequency(String note);
-
+String enumToString(Note n);
 #endif //MOTOR_CONTROL_H_

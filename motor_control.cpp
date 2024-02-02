@@ -15,6 +15,38 @@ Note strToEnum(String note){
   else if(note == "B") return B;
   else return C;
 }
+
+String enumToString(Note n){
+  switch(n){
+    case C:
+      return "C";
+    case C_S:
+      return "C#";
+    case D:
+      return "D";
+    case D_S:
+      return "D#";
+    case E:
+      return "E";
+    case F:
+      return "F";
+    case F_S:
+      return "F#";
+    case G:
+      return "G";
+    case G_S:
+      return "G#";
+    case A:
+      return "A";
+    case A_S:
+      return "A#";
+    case B:
+      return "B";
+    default:
+      return "C";
+  }
+}
+
 MotorControl::MotorControl(int pin) : ESC_pin(pin){
     ESC.attach(pin);
     ESC.writeMicroseconds(1000);
