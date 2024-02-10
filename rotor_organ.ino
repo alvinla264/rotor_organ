@@ -1,5 +1,6 @@
 #include <Servo.h>
 #include "motor_control.h"
+#include "user_interface.h"
 #define ESC_PIN 9
 #define POT A0
 #define PUSH_BUTTON_START 2
@@ -13,15 +14,39 @@ void setup(){
         pinMode(i + 1, INPUT);
     }
 }
+
 void loop(){
+    Motor_Serial_Test();
+}
+void Motor_Button_Test(){
     for(int i = PUSH_BUTTON_START; i < PUSH_BUTTON_END; i++){
         if(digitalRead(i+1)){
-            motor.PlayNote(enumToString(Note(i+1-PUSH_BUTTON_START)));
+            motor.PlayNote(enumToString(Note(i+1-PUSH_BUTTON_START)), 4);
         }
         else motor.TurnOff();
     }
 }
 
+
+void Motor_Serial_Test(){
+    if(Serial.available()){
+        String input = Serial.readString();
+        if(input == "off"){
+            motor.TurnOff();
+        }
+        else{
+            int space_index = input.indexOf(' ');
+            String note = input.substring(0, space_index);
+            int octave = input.substring(space_index+1).toInt();
+            Serial.print("Playing ");
+            Serial.print(note);
+            Serial.print(" ");
+            Serial.println(octave);
+            motor.PlayNote(note, octave);
+        }
+    }
+    delay(250);
+}
 
 /*pot test code*/
 //Servo ESC;
