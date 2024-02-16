@@ -53,7 +53,7 @@ MotorControl::MotorControl(int pin) : ESC_pin(pin){
     ESC.writeMicroseconds(1000);
 }
 
-void MotorControl::PlayNote(String note, int octave){
+float MotorControl::PlayNote(String note, int octave){
     bool down_octave = false;
     float freq = fundamental_freq[strToEnum(note)];
     octave = octave - 4;//center it at 0
@@ -68,6 +68,7 @@ void MotorControl::PlayNote(String note, int octave){
     frequency = freq;
     rpm = output;
     ESC.writeMicroseconds(rpm);
+    return freq;
 }
 
 void MotorControl::TurnOff(){

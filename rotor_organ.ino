@@ -41,8 +41,11 @@ void Motor_Serial_Test(){
             Serial.print("Playing ");
             Serial.print(note);
             Serial.print(" ");
-            Serial.println(octave);
-            motor.PlayNote(note, octave);
+            Serial.print(octave);
+            int freq = motor.PlayNote(note, octave);
+            Serial.print(" frequency: ");
+            Serial.println(freq);
+            Serial.println();
         }
     }
     delay(250);

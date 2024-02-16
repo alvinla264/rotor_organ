@@ -29,7 +29,7 @@ class MotorControl{
     public:
         MotorControl();
         MotorControl(int pin);
-        void PlayNote(String note, int octave = 4);
+        float PlayNote(String note, int octave = 4);
         void TurnOff();
 };
 //fourth octave
