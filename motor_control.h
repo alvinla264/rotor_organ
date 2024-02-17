@@ -28,9 +28,12 @@ class MotorControl{
         int frequency;
     public:
         MotorControl();
-        MotorControl(int pin);
-        float PlayNote(String note, int octave = 4);
+        MotorControl(Servo esc);
+        void PlayNote(String note, int octave = 4);
         void TurnOff();
+        int GetRPM();
+        int GetFrequency();
+        void PotControl(int value);
 };
 //fourth octave
 Note strToEnum(String note);

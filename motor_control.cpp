@@ -48,12 +48,18 @@ String enumToString(Note n){
   }
 }
 
-MotorControl::MotorControl(int pin) : ESC_pin(pin){
-    ESC.attach(pin);
-    ESC.writeMicroseconds(1000);
+MotorControl::MotorControl(Servo esc){
+    ESC = esc;
+    frequency = 0;
+    rpm = 0;
 }
 
-float MotorControl::PlayNote(String note, int octave){
+MotorControl::MotorControl(){
+  frequency = 0;
+  rpm = 0;
+}
+
+void MotorControl::PlayNote(String note, int octave){
     bool down_octave = false;
     float freq = fundamental_freq[strToEnum(note)];
     octave = octave - 4;//center it at 0
@@ -64,13 +70,20 @@ float MotorControl::PlayNote(String note, int octave){
     //changes the frequency to the proper octave
     freq = (octave) ? ((down_octave) ? freq / ((float)num_of_plates * (float)octave) : freq * (num_of_plates * octave)) : freq;
     rpm = freq * 60; //converts freq(RPS) to RPM assuming freq and RPS are 1 to 1
-    int output = map(rpm, 0, MAX_RPM, 1000, 2000);
+    int output = map(rpm, 0, MAX_RPM, 1100, 2000);
     frequency = freq;
     rpm = output;
     ESC.writeMicroseconds(rpm);
-    return freq;
 }
 
 void MotorControl::TurnOff(){
-    ESC.writeMicroseconds(0);
+    ESC.writeMicroseconds(1000);
+}
+
+int MotorControl::GetFrequency(){ return frequency;}
+
+int MotorControl::GetRPM(){ return rpm; }
+
+void MotorControl::PotControl(int value){
+  ESC.writeMicroseconds(value);
 }
