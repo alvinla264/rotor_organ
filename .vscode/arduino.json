@@ -3,5 +3,5 @@
     "programmer": "avrispmkii",
     "output": "..\\arduino_build",
     "sketch": "rotor_organ.ino",
-    "port": "COM3"
+    "port": "COM4"
 }
