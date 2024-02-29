@@ -2,7 +2,7 @@
 #include "motor_control.h"
 #include "user_interface.h"
 #define ESC_PIN 9
-#define POT A0
+#define POT A1
 #define PUSH_BUTTON_START 2
 #define PUSH_BUTTON_END 8
 MotorControl motor;
