@@ -20,14 +20,15 @@ void setup(){
     // delay(5000);
     Serial.println("Writing 1000");
     ESC.writeMicroseconds(1000);
-    delay(1000);
+    delay(3000);
     Serial.println("Done");
     motor = MotorControl(ESC);
-    delay(5000);
+    //delay(5000);
 }
 
 void loop(){
-    Motor_Serial_Test();
+    //Motor_Serial_Test();
+    Pot_Test();
 }
 
 void Pot_Test(){

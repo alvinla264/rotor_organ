@@ -1,5 +1,5 @@
 #include "motor_control.h"
-float fundamental_freq[] = {261.63, 277.18, 293.66, 311.13, 329.63, 349.23, 369.99, 392, 415.3, 440, 466,16, 493.88}; //C C# D D# E F F# G G# A A# B
+float fundamental_freq[] = {16.35, 17.32, 18.35, 19.45, 20.6, 21.83, 23.12, 24.5, 25.96, 27.5, 29.14,30.87}; //C C# D D# E F F# G G# A A# B
 
 Note strToEnum(String note){
   if(note == "C") return C;
@@ -61,15 +61,8 @@ MotorControl::MotorControl(){
 
 void MotorControl::PlayNote(String note, int octave){
     bool down_octave = false;
-    float freq = fundamental_freq[strToEnum(note)];
-    octave = octave - 4;//center it at 0
-    if(octave < 0){
-        octave = -1 * octave;
-        down_octave = true;
-    }
-    //changes the frequency to the proper octave
-    freq = (octave) ? ((down_octave) ? freq / ((float)num_of_plates * (float)octave) : freq * (num_of_plates * octave)) : freq;
-    rpm = freq * 60; //converts freq(RPS) to RPM assuming freq and RPS are 1 to 1
+    float freq = fundamental_freq[strToEnum(note)] * pow(2, octave);
+    rpm = freq * 60 ; //converts freq(RPS) to RPM assuming freq and RPS are 1 to 1
     int output = map(rpm, 0, MAX_RPM, 1100, 2000);
     frequency = freq;
     rpm = output;
