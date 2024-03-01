@@ -5,7 +5,7 @@
 
 //max freq is G# 2 octaves up 1661.2(6 octave)
 #define num_of_plates 8
-#define MAX_RPM 50000
+#define MAX_RPM 9480
 enum Note{
   C,
   C_S,
@@ -24,15 +24,18 @@ class MotorControl{
     private:
         int ESC_pin;
         Servo ESC;
-        int rpm;
-        int frequency;
+        unsigned int rpm;
+        float frequency;
+        int motor_output;
     public:
         MotorControl();
         MotorControl(Servo esc);
+        void InitializeMotor();
         void PlayNote(String note, int octave = 4);
         void TurnOff();
-        int GetRPM();
-        int GetFrequency();
+        unsigned int GetRPM(){return rpm;}
+        float GetFrequency(){return frequency;}
+        int GetMotorOutput(){return motor_output;}
         void PotControl(int value);
 };
 //fourth octave

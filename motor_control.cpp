@@ -52,31 +52,57 @@ MotorControl::MotorControl(Servo esc){
     ESC = esc;
     frequency = 0;
     rpm = 0;
+    motor_output = 0;
 }
 
 MotorControl::MotorControl(){
   frequency = 0;
   rpm = 0;
+  motor_output = 0;
 }
 
 void MotorControl::PlayNote(String note, int octave){
     bool down_octave = false;
     float freq = fundamental_freq[strToEnum(note)] * pow(2, octave);
-    rpm = freq * 60 ; //converts freq(RPS) to RPM assuming freq and RPS are 1 to 1
+    rpm = (freq / num_of_plates) * 60 ; //converts freq(RPS) to RPM assuming freq and RPS are 1 to 1
     int output = map(rpm, 0, MAX_RPM, 1100, 2000);
     frequency = freq;
-    rpm = output;
-    ESC.writeMicroseconds(rpm);
+    motor_output = output;
+    ESC.writeMicroseconds(output);
 }
 
 void MotorControl::TurnOff(){
     ESC.writeMicroseconds(1000);
 }
 
-int MotorControl::GetFrequency(){ return frequency;}
-
-int MotorControl::GetRPM(){ return rpm; }
-
 void MotorControl::PotControl(int value){
   ESC.writeMicroseconds(value);
+}
+
+
+void MotorControl::InitializeMotor(){
+  ESC.writeMicroseconds(1000);
+  delay(250);
+  ESC.writeMicroseconds(1000);
+  delay(250);
+  ESC.writeMicroseconds(1000);
+  delay(250);
+  ESC.writeMicroseconds(1000);
+  delay(250);
+  ESC.writeMicroseconds(1000);
+  delay(250);
+  ESC.writeMicroseconds(1000);
+  delay(250);
+  ESC.writeMicroseconds(1000);
+  delay(250);
+  ESC.writeMicroseconds(1000);
+  delay(250);
+  ESC.writeMicroseconds(1000);
+  delay(250);
+  ESC.writeMicroseconds(1000);
+  delay(250);
+  ESC.writeMicroseconds(1000);
+  delay(250);
+  ESC.writeMicroseconds(1000);
+  delay(250);
 }
