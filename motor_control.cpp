@@ -62,10 +62,9 @@ MotorControl::MotorControl(){
 }
 
 void MotorControl::PlayNote(String note, int octave){
-    bool down_octave = false;
     float freq = fundamental_freq[strToEnum(note)] * pow(2, octave);
     rpm = (freq / num_of_plates) * 60 ; //converts freq(RPS) to RPM assuming freq and RPS are 1 to 1
-    int output = map(rpm, 0, MAX_RPM, 1100, 2000);
+    int output = map(rpm, 0, MAX_RPM, 0, 2000);
     frequency = freq;
     motor_output = output;
     ESC.writeMicroseconds(output);

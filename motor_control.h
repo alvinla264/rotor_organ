@@ -6,8 +6,9 @@
 //max freq is G# 2 octaves up 1661.2(6 octave)
 #define num_of_plates 8
 #define MAX_RPM 9480
+#define MIN_RPM 500
 enum Note{
-  C,
+  C = 0,
   C_S,
   D,
   D_S,
