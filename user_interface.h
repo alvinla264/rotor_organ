@@ -6,14 +6,19 @@
 
 #define NUM_OF_SLIDERS 4
 #define NUM_OF_POS 4
+#define NUM_OF_BUTTONS 4
 
 class UserInterface{
     private:
         SliderPot sliders[NUM_OF_SLIDERS];
-        int slider_positions[NUM_OF_SLIDERS];
-        MotorControl motors[NUM_OF_SLIDERS];
+        int button_start;
+        
     public:
-        UserInterface(int slider_pin_start, int motor_pin_start);
+        bool button_status[NUM_OF_BUTTONS];
+        int slider_positions[NUM_OF_SLIDERS];
+        UserInterface(int slider_pin_start, int bttn_start);
+        void ReadSliderPosition();
+        void ReadButtonPosition();
 };
 
 

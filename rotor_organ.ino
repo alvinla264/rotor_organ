@@ -1,15 +1,18 @@
 #include <Servo.h>
 #include "motor_control.h"
 #include "user_interface.h"
+#include "slider_pot.h"
 #define ESC_PIN 9
-#define POT A1
+#define POT A0
 #define PUSH_BUTTON_START 34
 #define PUSH_BUTTON_END 52
 #define BTTN_CHANGE_FACTOR 2
-#define OCTAVEOFFSET 0
+#define OCTAVEOFFSET 2
 
 //slidepot 1(850-1023), 2(650-800), 3(350-500), 4(0-150)
 MotorControl motor;
+//UserInterface interface(A0, 50);
+Note root_note = (Note)1;
 int key = 0;
 int prev_key = 0;
 int octave = 0;
@@ -34,6 +37,34 @@ void setup(){
 }
 
 void loop(){
+    DemoSoundTest();
+}
+
+// void UserInterfaceTest(){
+//     interface.ReadButtonPosition();
+//     interface.ReadSliderPosition();
+//     int octave = interface.slider_positions[0];
+//     Note notes[NUM_OF_SLIDERS];
+//     for(int i = 0; i < NUM_OF_SLIDERS; i++){
+//         if(i == 0){
+//             notes[i] = root_note;
+//         }
+//         else{
+//             notes[i] = (Note)((int)root_note + interface.slider_positions[i]);
+//         }
+//     }
+//     for(int i = 0; i < NUM_OF_BUTTONS; i++){
+//         if(interface.button_status[i]){
+//             Serial.print("Motor ");
+//             Serial.print(i);
+//             Serial.print(": ");
+//             Serial.println(enumToString(notes[i]));
+//         }
+//     }
+//     Serial.println();
+// }
+
+void DemoSoundTest(){
     for(int i = PUSH_BUTTON_START; i <= PUSH_BUTTON_END; i+=BTTN_CHANGE_FACTOR){
         if(digitalRead(i)){
             key = (i - PUSH_BUTTON_START) / 2;
@@ -79,9 +110,8 @@ void loop(){
     }
     delay(250);
 }
-// void loop(){
-//     Pot_Test();
-// }
+
+
 void Pot_Test(){
     int potValue = analogRead(POT);
     potValue =  map(potValue, 0, 1023, 1000, 2000);
