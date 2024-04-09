@@ -1,25 +1,34 @@
 #include <Servo.h>
 #include "motor_control.h"
 #include "user_interface.h"
+#include "rotaryencoder.h"
+#include "Arduino.h"
 #define ESC_PIN 9
 #define POT A1
 #define PUSH_BUTTON_START 34
 #define PUSH_BUTTON_END 52
 #define BTTN_CHANGE_FACTOR 2
 #define OCTAVEOFFSET 0
-
+#define SLIDER_MAX_VALUE 23610
 //slidepot 1(850-1023), 2(650-800), 3(350-500), 4(0-150)
+
+
+volatile long counter = 0;
+volatile bool last_outA_value;
+volatile bool last_outB_value;
 MotorControl motor;
-int key = 0;
-int prev_key = 0;
+Note note = C;
+Note prev_note = C;
 int octave = 0;
 int prev_octave = 0;
+RotaryEncoder slider;
+
+void updateEncoder(){
+    slider.ReadState();
+}
+
 void setup(){
     Serial.begin(115200);
-    //initalizes button pins to input
-    for(int i = PUSH_BUTTON_START; i <= PUSH_BUTTON_END; i+=BTTN_CHANGE_FACTOR){
-        pinMode(i, INPUT);
-    }
     pinMode(POT, INPUT);
     Servo ESC;
     ESC.attach(ESC_PIN, 1000, 2000);
@@ -30,15 +39,13 @@ void setup(){
     Serial.println("Initalizing Motor");
     motor.InitializeMotor();
     Serial.println("Done");
-    //delay(5000);
+    attachInterrupt(digitalPinToInterrupt(outA), updateEncoder, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(outB), updateEncoder, CHANGE);
+    delay(5000);
 }
-
 void loop(){
-    for(int i = PUSH_BUTTON_START; i <= PUSH_BUTTON_END; i+=BTTN_CHANGE_FACTOR){
-        if(digitalRead(i)){
-            key = (i - PUSH_BUTTON_START) / 2;
-        }
-    }
+    long pos = slider.GetPositon();
+    note = Note(pos/(SLIDER_MAX_VALUE / 12));
     int value = analogRead(POT);
     if(value > 850){
         octave = 0;
@@ -52,15 +59,14 @@ void loop(){
     else{
         octave = 3;
     }
-    if(key && (key != prev_key || prev_octave != octave)){
-        prev_key = key;
+    if(note != prev_note || prev_octave != octave){
+        prev_note = note;
         prev_octave = octave;
-        String note = enumToString((Note) key);
         Serial.print("Playing ");
-        Serial.print(note);
+        Serial.print(enumToString(note));
         Serial.print(" ");
         Serial.println(octave + OCTAVEOFFSET);
-        motor.PlayNote(note, octave + OCTAVEOFFSET);
+        motor.PlayNote(enumToString(note), octave + OCTAVEOFFSET);
         float freq = motor.GetFrequency();
         unsigned int rpm = motor.GetRPM();
         int motor_output = motor.GetMotorOutput();
@@ -72,13 +78,53 @@ void loop(){
         Serial.println(freq);
         Serial.println();
     }
-    else if(!key && prev_key){
-        prev_key = key;
-        motor.TurnOff();
-        Serial.println("Turning off");
-    }
-    delay(250);
 }
+// void loop(){
+//     for(int i = PUSH_BUTTON_START; i <= PUSH_BUTTON_END; i+=BTTN_CHANGE_FACTOR){
+//         if(digitalRead(i)){
+//             key = (i - PUSH_BUTTON_START) / 2;
+//         }
+//     }
+//     int value = analogRead(POT);
+//     if(value > 850){
+//         octave = 0;
+//     }
+//     else if(value > 650){
+//         octave = 1;
+//     }
+//     else if(value > 350){
+//         octave = 2;
+//     }
+//     else{
+//         octave = 3;
+//     }
+//     if(key && (key != prev_key || prev_octave != octave)){
+//         prev_key = key;
+//         prev_octave = octave;
+//         String note = enumToString((Note) key);
+//         Serial.print("Playing ");
+//         Serial.print(note);
+//         Serial.print(" ");
+//         Serial.println(octave + OCTAVEOFFSET);
+//         motor.PlayNote(note, octave + OCTAVEOFFSET);
+//         float freq = motor.GetFrequency();
+//         unsigned int rpm = motor.GetRPM();
+//         int motor_output = motor.GetMotorOutput();
+//         Serial.print("motor output: ");
+//         Serial.print(motor_output);
+//         Serial.print(" rpm: ");
+//         Serial.print(rpm);
+//         Serial.print(" frequency: ");
+//         Serial.println(freq);
+//         Serial.println();
+//     }
+//     else if(!key && prev_key){
+//         prev_key = key;
+//         motor.TurnOff();
+//         Serial.println("Turning off");
+//     }
+//     delay(250);
+// }
 // void loop(){
 //     Pot_Test();
 // }
