@@ -47,6 +47,10 @@ void setup(){
     delay(5000);
 }
 void loop(){
+    //Motor_Serial_Test();
+    SliderTest();
+}
+void SliderTest(){
     long pos = slider.GetPositon();
     note = Note(pos/(SLIDER_MAX_VALUE / 12));
     int value = analogRead(POT);
@@ -65,21 +69,30 @@ void loop(){
     if(note != prev_note || prev_octave != octave){
         prev_note = note;
         prev_octave = octave;
-        Serial.print("Playing ");
-        Serial.print(enumToString(note));
-        Serial.print(" ");
-        Serial.println(octave + OCTAVEOFFSET);
-        motor.PlayNote(enumToString(note), octave + OCTAVEOFFSET);
-        float freq = motor.GetFrequency();
-        unsigned int rpm = motor.GetRPM();
-        int motor_output = motor.GetMotorOutput();
-        Serial.print("motor output: ");
-        Serial.print(motor_output);
-        Serial.print(" rpm: ");
-        Serial.print(rpm);
-        Serial.print(" frequency: ");
-        Serial.println(freq);
-        Serial.println();
+        if(octave == 0){
+            motor.TurnOff();
+            Serial.println("Motor Off");
+        }
+        else{
+            Serial.print("Position: ");
+            Serial.print(pos);
+            Serial.print(" Playing ");
+            Serial.print(enumToString(note));
+            Serial.print(" ");
+            Serial.println(octave + OCTAVEOFFSET);
+            motor.PlayNote(enumToString(note), octave + OCTAVEOFFSET);
+            float freq = motor.GetFrequency();
+            unsigned int rpm = motor.GetRPM();
+            int motor_output = motor.GetMotorOutput();
+            Serial.print("motor output: ");
+            Serial.print(motor_output);
+            Serial.print(" rpm: ");
+            Serial.print(rpm);
+            Serial.print(" frequency: ");
+            Serial.println(freq);
+            Serial.println();
+        }
+        
     }
 }
 void DemoSoundTest(){
@@ -101,6 +114,7 @@ void DemoSoundTest(){
     else{
         octave = 3;
     }
+    
     if(key && (key != prev_key || prev_octave != octave)){
         prev_key = key;
         prev_octave = octave;
@@ -163,18 +177,29 @@ void Motor_Serial_Test(){
             int space_index = input.indexOf(' ');
             String note = input.substring(0, space_index);
             int octave = input.substring(space_index+1).toInt();
-            Serial.print("Playing ");
-            Serial.print(note);
-            Serial.print(" ");
-            Serial.println(octave);
-            motor.PlayNote(note, octave);
-            int freq = motor.GetFrequency();
-            int rpm = motor.GetRPM();
-            Serial.print("motor output: ");
-            Serial.print(rpm);
-            Serial.print(" frequency: ");
-            Serial.println(freq);
-            Serial.println();
+            if(note == "motor"){
+                motor.PotControl(octave);
+                Serial.print("motor output: ");
+                Serial.println(octave);
+            }
+            else{
+                Serial.print("Playing ");
+                Serial.print(note);
+                Serial.print(" ");
+                Serial.println(octave);
+                motor.PlayNote(note, octave);
+                float freq = motor.GetFrequency();
+                unsigned int rpm = motor.GetRPM();
+                int motor_output = motor.GetMotorOutput();
+                Serial.print("motor output: ");
+                Serial.print(motor_output);
+                Serial.print(" rpm: ");
+                Serial.print(rpm);
+                Serial.print(" frequency: ");
+                Serial.println(freq);
+                Serial.println();
+            }
+            
         }
     }
     delay(250);
