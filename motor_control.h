@@ -32,12 +32,12 @@ class MotorControl{
         MotorControl();
         MotorControl(Servo esc);
         void InitializeMotor();
-        void PlayNote(String note, int octave = 4);
+        void PlayNote(String note, int octave = 4, int offset = 0);
         void TurnOff();
         unsigned int GetRPM(){return rpm;}
         float GetFrequency(){return frequency;}
         int GetMotorOutput(){return motor_output;}
-        void PotControl(int value);
+        void writeMicroseconds(int value);
 };
 //fourth octave
 Note strToEnum(String note);

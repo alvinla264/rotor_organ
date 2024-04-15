@@ -63,11 +63,13 @@ MotorControl::MotorControl(){
   motor_output = 0;
 }
 
-void MotorControl::PlayNote(String note, int octave){
+void MotorControl::PlayNote(String note, int octave, int offset){
     float freq = fundamental_freq[strToEnum(note)] * pow(2, octave);
-    rpm = (freq / num_of_plates) * 60 ; //converts freq(RPS) to RPM assuming freq and RPS are 1 to 1
-    int output = map(rpm, 0, MAX_RPM, 1100, 2000);
-    frequency = freq;
+    // rpm = (freq / num_of_plates) * 60 ; //converts freq(RPS) to RPM assuming freq and RPS are 1 to 1
+    // int output = map(rpm, 0, MAX_RPM, 1100, 2000);
+    // frequency = freq;
+    int output = 1087.0 + 0.334 * freq + 1.73E-04 * pow(freq, 2);
+    output = (output + offset > 2000) ? 2000 : (output + offset < 1100) ? 1100 : output + offset;
     motor_output = output;
     ESC.writeMicroseconds(output);
 }
@@ -76,7 +78,7 @@ void MotorControl::TurnOff(){
     ESC.writeMicroseconds(1000);
 }
 
-void MotorControl::PotControl(int value){
+void MotorControl::writeMicroseconds(int value){
   ESC.writeMicroseconds(value);
 }
 
