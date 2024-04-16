@@ -8,7 +8,6 @@
 #define num_of_plates 8
 #define MAX_RPM 9480
 #define MIN_RPM 500
-
 class MotorControl{
     private:
         int ESC_pin;

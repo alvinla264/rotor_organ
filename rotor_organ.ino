@@ -1,17 +1,19 @@
 #include <Servo.h>
 #include "motor_control.h"
+#include "music.h"
 #include "rotaryencoder.h"
 #include "Arduino.h"
 #define ESC_PIN 9
 #define POT_TEST A0
-#define POT_OCTAVE A0
+#define POT_OCTAVE_SLIDER A0
 #define POT_NOTE A1
 #define POT_TUNER A2
+#define POT_OCTAVE A3
 #define POT_BUTTON_THRESHOLD 300
 #define PUSH_BUTTON_START 34
 #define PUSH_BUTTON_END 52
 #define BTTN_CHANGE_FACTOR 2
-#define OCTAVEOFFSET 0
+#define OCTAVEOFFSET 2
 #define OFFSET_RANGE 20
 #define SLIDER_MAX_VALUE 23610
 #define DEBUG false
@@ -37,9 +39,10 @@ void updateEncoder(){
 
 void setup(){
     Serial.begin(115200);
-    pinMode(POT_OCTAVE, INPUT);
+    pinMode(POT_OCTAVE_SLIDER, INPUT);
     pinMode(POT_NOTE, INPUT);
     pinMode(POT_TUNER, INPUT);
+    pinMode(POT_OCTAVE, INPUT);
     Servo ESC;
     ESC.attach(ESC_PIN, 1000, 2000);
     //Serial.println("writing 2000");
@@ -62,7 +65,7 @@ void MayOrgan(){
         long pos = slider.GetPositon();
         note = Note(pos/(SLIDER_MAX_VALUE / 12)); //segments the slider into 12 regions representing the 12 notes
 
-        int octave_value = analogRead(POT_OCTAVE); //reads the octave slider pot and gets position
+        int octave_value = analogRead(POT_OCTAVE_SLIDER); //reads the octave slider pot and gets position
         if(octave_value > 850){
             octave = 0;
         }
@@ -75,6 +78,7 @@ void MayOrgan(){
         else{
             octave = 3;
         }
+        if(analogRead(POT_OCTAVE) > POT_BUTTON_THRESHOLD) octave += 4;
         while(analogRead(POT_TUNER) > POT_BUTTON_THRESHOLD){ //tuning mode
             pos = slider.GetPositon();
             pos -= SLIDER_MAX_VALUE / 2; //changes range from 0 to MAX to -MAX/2 to MAX/2
@@ -111,7 +115,7 @@ void MayOrgan(){
 void SliderTest(){
     long pos = slider.GetPositon();
     note = Note(pos/(SLIDER_MAX_VALUE / 12));
-    int value = analogRead(POT_OCTAVE);
+    int value = analogRead(POT_OCTAVE_SLIDER);
     if(value > 850){
         octave = 0;
     }
@@ -159,7 +163,7 @@ void DemoSoundTest(){
             key = (i - PUSH_BUTTON_START) / 2;
         }
     }
-    int value = analogRead(POT_OCTAVE);
+    int value = analogRead(POT_OCTAVE_SLIDER);
     if(value > 850){
         octave = 0;
     }

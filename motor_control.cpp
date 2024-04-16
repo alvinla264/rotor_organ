@@ -1,7 +1,4 @@
 #include "motor_control.h"
-float fundamental_freq[] = {16.35, 17.32, 18.35, 19.45, 20.6, 21.83, 23.12, 24.5, 25.96, 27.5, 29.14,30.87}; //C C# D D# E F F# G G# A A# B
-
-
 
 MotorControl::MotorControl(Servo esc){
     ESC = esc;
@@ -9,8 +6,6 @@ MotorControl::MotorControl(Servo esc){
     rpm = 0;
     motor_output = 0;
 }
-
-
 
 MotorControl::MotorControl(){
   frequency = 0;
