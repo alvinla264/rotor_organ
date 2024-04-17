@@ -9,14 +9,14 @@
 #define POT_NOTE A1
 #define POT_TUNER A2
 #define POT_OCTAVE A3
-#define POT_BUTTON_THRESHOLD 300
+#define POT_BUTTON_THRESHOLD 350
 #define PUSH_BUTTON_START 34
 #define PUSH_BUTTON_END 52
 #define BTTN_CHANGE_FACTOR 2
 #define OCTAVEOFFSET 2
 #define OFFSET_RANGE 20
 #define SLIDER_MAX_VALUE 23610
-#define DEBUG false
+#define DEBUG true
 //slidepot 1(850-1023), 2(650-800), 3(350-500), 4(0-150)
 
 
@@ -26,6 +26,7 @@ volatile bool last_outB_value;
 MotorControl motor;
 int key = 0;
 int prev_key = 0;
+bool first_pressed = true;
 Note note = C;
 Note prev_note = C;
 int offset = 0;
@@ -51,18 +52,28 @@ void setup(){
     motor = MotorControl(ESC);
     Serial.println("Initalizing Motor");
     motor.InitializeMotor();
-    Serial.println("Done");
     attachInterrupt(digitalPinToInterrupt(outA), updateEncoder, CHANGE);
     attachInterrupt(digitalPinToInterrupt(outB), updateEncoder, CHANGE);
+    Serial.println("Done");
     delay(5000);
+    
 }
 void loop(){
     MayOrgan();
+    //SliderTest();
+//     int value = analogRead(POT_NOTE);
+//    if(value > POT_BUTTON_THRESHOLD){
+//     Serial.print("On ");
+//     Serial.println(value);
+//    }
+//    else Serial.println("Off");
+//     delay(250);
 }
 
 void MayOrgan(){
     while(analogRead(POT_NOTE) > POT_BUTTON_THRESHOLD){
         long pos = slider.GetPositon();
+        pos = (pos > SLIDER_MAX_VALUE) ? SLIDER_MAX_VALUE : (pos < 0) ? 0 : pos;
         note = Note(pos/(SLIDER_MAX_VALUE / 12)); //segments the slider into 12 regions representing the 12 notes
 
         int octave_value = analogRead(POT_OCTAVE_SLIDER); //reads the octave slider pot and gets position
@@ -78,15 +89,16 @@ void MayOrgan(){
         else{
             octave = 3;
         }
-        if(analogRead(POT_OCTAVE) > POT_BUTTON_THRESHOLD) octave += 4;
-        while(analogRead(POT_TUNER) > POT_BUTTON_THRESHOLD){ //tuning mode
-            pos = slider.GetPositon();
-            pos -= SLIDER_MAX_VALUE / 2; //changes range from 0 to MAX to -MAX/2 to MAX/2
-            offset = map(pos, -(SLIDER_MAX_VALUE / 2), (SLIDER_MAX_VALUE / 2), -OFFSET_RANGE, OFFSET_RANGE); //maps position range to -OFFSET_RANGE TO OFFSET_RANGE
-            motor.PlayNote(enumToString(note), octave + OCTAVEOFFSET, offset);
-            delay(250);
-        }
-        if(note != prev_note || prev_octave != octave){
+        //if(analogRead(POT_OCTAVE) > POT_BUTTON_THRESHOLD) octave += 4;
+        // while(analogRead(POT_TUNER) > POT_BUTTON_THRESHOLD){ //tuning mode
+        //     pos = slider.GetPositon();
+        //     pos -= SLIDER_MAX_VALUE / 2; //changes range from 0 to MAX to -MAX/2 to MAX/2
+        //     offset = map(pos, -(SLIDER_MAX_VALUE / 2), (SLIDER_MAX_VALUE / 2), -OFFSET_RANGE, OFFSET_RANGE); //maps position range to -OFFSET_RANGE TO OFFSET_RANGE
+        //     motor.PlayNote(enumToString(note), octave + OCTAVEOFFSET, offset);
+        //     delay(250);
+        // }
+        if(note != prev_note || prev_octave != octave || first_pressed){
+            first_pressed = false;
             prev_note = note;
             prev_octave = octave;
             motor.PlayNote(enumToString(note), octave + OCTAVEOFFSET, offset);
@@ -110,6 +122,8 @@ void MayOrgan(){
             }
         }
     }
+    motor.TurnOff();
+    first_pressed = true;
 }
 
 void SliderTest(){
