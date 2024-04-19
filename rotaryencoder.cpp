@@ -40,3 +40,7 @@ void RotaryEncoder::ReadState(){
 
 
 long RotaryEncoder::GetPositon(){ return position;}
+
+void RotaryEncoder::SetPositionMax(){position = SLIDER_MAX_VALUE;}
+
+void RotaryEncoder::SetPositionMin(){position = 0;}

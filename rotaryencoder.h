@@ -1,6 +1,7 @@
 #ifndef ROTARYENCODER_H_
 #define ROTARYECODER_H_
 #include "Arduino.h"
+#define SLIDER_MAX_VALUE 23610
 //#include "digitalWriteFast.h"
 #ifdef ARDUINO_AVR_MEGA2560
 #define BOARD "MEGA2560"
@@ -26,6 +27,8 @@ class RotaryEncoder{
         RotaryEncoder();
         void ReadState();
         long GetPositon();
+        void SetPositionMax();
+        void SetPositionMin();
 };
 
 #endif

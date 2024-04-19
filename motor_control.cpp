@@ -19,7 +19,7 @@ void MotorControl::PlayNote(String note, int octave, int offset){
     // rpm = (freq / num_of_plates) * 60 ; //converts freq(RPS) to RPM assuming freq and RPS are 1 to 1
     // int output = map(rpm, 0, MAX_RPM, 1100, 2000);
     frequency = freq;
-    int output = 1087.0 + 0.334 * freq + 1.73E-04 * pow(freq, 2);
+    int output = 1077 + 0.44 * freq + -1.19E-04 * pow(freq, 2);
     output = (output + offset > 2000) ? 2000 : (output + offset < 1100) ? 1100 : output + offset;
     motor_output = output;
     ESC.writeMicroseconds(output);

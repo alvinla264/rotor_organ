@@ -2,20 +2,21 @@
 #include "motor_control.h"
 #include "music.h"
 #include "rotaryencoder.h"
+#include "AD5245.h"
 #include "Arduino.h"
 #define ESC_PIN 9
 #define POT_TEST A0
 #define POT_OCTAVE_SLIDER A0
-#define POT_NOTE A1
-#define POT_TUNER A2
-#define POT_OCTAVE A3
+#define POT_NOTE A0
+#define POT_OCTAVE1 A1
+#define POT_OCTAVE2 A2
 #define POT_BUTTON_THRESHOLD 350
+#define MOTOR_SWITCH 30
 #define PUSH_BUTTON_START 34
 #define PUSH_BUTTON_END 52
 #define BTTN_CHANGE_FACTOR 2
 #define OCTAVEOFFSET 2
 #define OFFSET_RANGE 20
-#define SLIDER_MAX_VALUE 23610
 #define DEBUG true
 //slidepot 1(850-1023), 2(650-800), 3(350-500), 4(0-150)
 
@@ -24,6 +25,8 @@ volatile long counter = 0;
 volatile bool last_outA_value;
 volatile bool last_outB_value;
 MotorControl motor;
+int digi_pot_value = 0;
+AD5245 AD(0x2C);
 int key = 0;
 int prev_key = 0;
 bool first_pressed = true;
@@ -40,63 +43,72 @@ void updateEncoder(){
 
 void setup(){
     Serial.begin(115200);
+    Wire.begin();
+    Wire.setClock(400000);
+    AD.begin();
     pinMode(POT_OCTAVE_SLIDER, INPUT);
     pinMode(POT_NOTE, INPUT);
-    pinMode(POT_TUNER, INPUT);
-    pinMode(POT_OCTAVE, INPUT);
+    pinMode(POT_OCTAVE1, INPUT);
+    pinMode(POT_OCTAVE2, INPUT);
+    pinMode(MOTOR_SWITCH, INPUT_PULLUP);
     Servo ESC;
     ESC.attach(ESC_PIN, 1000, 2000);
-    //Serial.println("writing 2000");
-    //ESC.writeMicroseconds(2000);
-    //delay(5000);
+    // Serial.println("writing 2000");
+    // ESC.writeMicroseconds(2000);
+    // delay(5000);
     motor = MotorControl(ESC);
     Serial.println("Initalizing Motor");
     motor.InitializeMotor();
     attachInterrupt(digitalPinToInterrupt(outA), updateEncoder, CHANGE);
     attachInterrupt(digitalPinToInterrupt(outB), updateEncoder, CHANGE);
-    Serial.println("Done");
     delay(5000);
-    
+    Serial.println("Done");
+    while(!digitalRead(MOTOR_SWITCH)) continue;
 }
 void loop(){
     MayOrgan();
     //SliderTest();
-//     int value = analogRead(POT_NOTE);
-//    if(value > POT_BUTTON_THRESHOLD){
-//     Serial.print("On ");
-//     Serial.println(value);
-//    }
-//    else Serial.println("Off");
-//     delay(250);
+    //Motor_Serial_Test();
+    // Serial.print("Switch: ");
+    // Serial.print(digitalRead(MOTOR_SWITCH));
+    // Serial.print("  ");
+    // for(int i = 0; i < 3; i++){
+    //     int value = analogRead(POT_NOTE + i);
+    //     Serial.print(i);
+    //     Serial.print(" :");
+    //     Serial.print(value);
+    //     Serial.print("   ");
+    // }
+    // Serial.println();
+    // delay(250);
 }
 
 void MayOrgan(){
-    while(analogRead(POT_NOTE) > POT_BUTTON_THRESHOLD){
+    if(digitalRead(MOTOR_SWITCH)){
+        int pot_note_value = analogRead(POT_NOTE);
+        digi_pot_value = map(pot_note_value, 295, 560, 0, 255);
+        AD.write(digi_pot_value);
         long pos = slider.GetPositon();
-        pos = (pos > SLIDER_MAX_VALUE) ? SLIDER_MAX_VALUE : (pos < 0) ? 0 : pos;
-        note = Note(pos/(SLIDER_MAX_VALUE / 12)); //segments the slider into 12 regions representing the 12 notes
-
-        int octave_value = analogRead(POT_OCTAVE_SLIDER); //reads the octave slider pot and gets position
-        if(octave_value > 850){
-            octave = 0;
+        if(pos > SLIDER_MAX_VALUE) {
+            pos = SLIDER_MAX_VALUE;
+            slider.SetPositionMax();
         }
-        else if(octave_value > 650){
+        else if(pos < 0){
+            pos = 0;
+            slider.SetPositionMin();
+        }
+        note = Note(pos/(SLIDER_MAX_VALUE / 12)); //segments the slider into 12 regions representing the 12 notes
+        int octave_value = analogRead(POT_OCTAVE1); //reads the octave slider pot and gets position
+        int octave_value2 = analogRead(POT_OCTAVE2);
+        if(octave_value > POT_BUTTON_THRESHOLD){
             octave = 1;
         }
-        else if(octave_value > 350){
+        else if(octave_value2 > POT_BUTTON_THRESHOLD){
             octave = 2;
         }
         else{
-            octave = 3;
+            octave = 0;
         }
-        //if(analogRead(POT_OCTAVE) > POT_BUTTON_THRESHOLD) octave += 4;
-        // while(analogRead(POT_TUNER) > POT_BUTTON_THRESHOLD){ //tuning mode
-        //     pos = slider.GetPositon();
-        //     pos -= SLIDER_MAX_VALUE / 2; //changes range from 0 to MAX to -MAX/2 to MAX/2
-        //     offset = map(pos, -(SLIDER_MAX_VALUE / 2), (SLIDER_MAX_VALUE / 2), -OFFSET_RANGE, OFFSET_RANGE); //maps position range to -OFFSET_RANGE TO OFFSET_RANGE
-        //     motor.PlayNote(enumToString(note), octave + OCTAVEOFFSET, offset);
-        //     delay(250);
-        // }
         if(note != prev_note || prev_octave != octave || first_pressed){
             first_pressed = false;
             prev_note = note;
@@ -108,6 +120,10 @@ void MayOrgan(){
                 int motor_output = motor.GetMotorOutput();
                 Serial.print("Position: ");
                 Serial.print(pos);
+                Serial.print(" Pot value: ");
+                Serial.print(pot_note_value);
+                Serial.print(" digipot output: ");
+                Serial.print(digi_pot_value);
                 Serial.print(" Playing ");
                 Serial.print(enumToString(note));
                 Serial.print(" ");
@@ -122,8 +138,14 @@ void MayOrgan(){
             }
         }
     }
-    motor.TurnOff();
-    first_pressed = true;
+    else{
+        Serial.println("Off");
+        motor.TurnOff();
+        while(!digitalRead(MOTOR_SWITCH)){
+            continue;
+        }
+    }
+    delay(1);
 }
 
 void SliderTest(){
@@ -229,6 +251,7 @@ void Pot_Test(){
 }
 
 void Motor_Serial_Test(){
+    AD.write(255);
     if(Serial.available()){
         String input = Serial.readString();
         if(input == "off"){
