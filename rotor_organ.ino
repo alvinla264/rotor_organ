@@ -24,6 +24,7 @@
 volatile long counter = 0;
 volatile bool last_outA_value;
 volatile bool last_outB_value;
+const unsigned long interval = 1000; // 1 second
 MotorControl motor;
 int digi_pot_value = 0;
 AD5245 AD(0x2C);
@@ -41,11 +42,26 @@ void updateEncoder(){
     slider.ReadState();
 }
 
+ISR(TIMER1_COMPA_vect) {
+    int pot_note_value = analogRead(POT_NOTE);
+    digi_pot_value = map(pot_note_value, 295, 560, 0, 255);
+    AD.write(digi_pot_value);
+}
+
 void setup(){
     Serial.begin(115200);
     Wire.begin();
     Wire.setClock(400000);
     AD.begin();
+    TCCR1A = 0; // Set Timer1 to normal mode
+    TCCR1B = (1 << WGM12) | (1 << CS11) | (1 << CS10); // CTC mode, prescaler = 64
+    OCR1A = F_CPU / 64 / 1000 * interval - 1; // Calculate compare match value
+    
+    // Enable the Timer1 compare match A interrupt
+    TIMSK1 |= (1 << OCIE1A);
+    
+    // Enable global interrupts
+    sei();
     pinMode(POT_OCTAVE_SLIDER, INPUT);
     pinMode(POT_NOTE, INPUT);
     pinMode(POT_OCTAVE1, INPUT);
@@ -85,9 +101,6 @@ void loop(){
 
 void MayOrgan(){
     if(digitalRead(MOTOR_SWITCH)){
-        int pot_note_value = analogRead(POT_NOTE);
-        digi_pot_value = map(pot_note_value, 295, 560, 0, 255);
-        AD.write(digi_pot_value);
         long pos = slider.GetPositon();
         if(pos > SLIDER_MAX_VALUE) {
             pos = SLIDER_MAX_VALUE;
@@ -120,8 +133,6 @@ void MayOrgan(){
                 int motor_output = motor.GetMotorOutput();
                 Serial.print("Position: ");
                 Serial.print(pos);
-                Serial.print(" Pot value: ");
-                Serial.print(pot_note_value);
                 Serial.print(" digipot output: ");
                 Serial.print(digi_pot_value);
                 Serial.print(" Playing ");
