@@ -1,3 +1,10 @@
+/*
+Title: rotaryencoder.h
+Author: Alvin La
+Date: 05/20/2024
+Description: RotaryEncoder reads the current state of A and B to determine the positon of the rotary encoder
+*/
+
 #ifndef ROTARYENCODER_H_
 #define ROTARYECODER_H_
 #include "Arduino.h"

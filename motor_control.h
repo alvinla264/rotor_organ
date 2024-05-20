@@ -1,3 +1,10 @@
+/*
+Title: motor_control.h
+Author: Alvin La
+Date: 05/20/2024
+Desciption: contains all the motor control methods to control the may organ's brushless DC motor.
+*/
+
 #ifndef MOTOR_CONTROL_H_
 #define MOTOR_CONTROL_H_
 #include <Arduino.h>

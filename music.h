@@ -1,3 +1,9 @@
+/*
+Title: music.cpp
+Author: Alvin La
+Date: 05/20/2024
+Description: This file contains the Note enum as well as functions to convert enum to string and vice versa
+*/
 #ifndef MUSIC_H_
 #define MUSIC_H_
 #include "Arduino.h"
